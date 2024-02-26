@@ -67,10 +67,16 @@ def logout(request):
 def settings(request):
     user_profile = profile.objects.get(user=request.user)
     if request.method == 'POST':
-        user_profile.profile_image = request.FILES.get('image')
-        user_profile.bio = request.POST['bio']
-        user_profile.email = request.POST['email']
-        user_profile.location = request.POST['location']
+        bio = request.POST['bio']
+        email = request.POST['email']
+        location = request.POST['location']
+
+        if request.FILES.get('image'):
+            user_profile.profile_image = request.FILES.get('image')
+
+        user_profile.bio = bio
+        user_profile.email = email
+        user_profile.location = location
         user_profile.save()
 
     return render(request, 'setting.html', {'user_profile': user_profile})
