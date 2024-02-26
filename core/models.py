@@ -12,7 +12,7 @@ class profile(models.Model):
     bio = models.TextField()
     location = models.TextField()
     email = models.EmailField(null=True)
-    profile_image = models.ImageField()
+    profile_image = models.ImageField(upload_to='profile_images', default='user-simple-flat-icon-illustration-vector.jpg')
 
     def __str__(self):
         return self.user.username
