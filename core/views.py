@@ -2,13 +2,16 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.models import User, auth
-from .models import profile
+from .models import profile, post
 from django.contrib.auth.decorators import login_required
 
 
 @login_required(login_url='signin')
 def index(request):
-    return render(request, 'index.html')
+    user_profile = User.objects.get(username=request.user)
+    get_profile = profile.objects.get(user=user_profile)
+    posts = post.objects.all()
+    return render(request, 'index.html', {'user_profile': get_profile, 'posts': posts})
 
 
 def signup(request):
@@ -80,3 +83,18 @@ def settings(request):
         user_profile.save()
 
     return render(request, 'setting.html', {'user_profile': user_profile})
+
+
+@login_required(login_url='signin')
+def uploads(request):
+    if request.method == 'POST':
+        user = request.user.username
+        caption = request.POST['caption']
+        image = request.FILES.get('post_image')
+
+        new_post = post(user=user, caption=caption, image=image)
+        new_post.save()
+        return redirect('/')
+    else:
+        return redirect('/')
+

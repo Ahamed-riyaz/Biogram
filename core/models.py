@@ -1,10 +1,10 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+import uuid
+from datetime import datetime
 
 User = get_user_model()
 
-
-# Create your models here.f
 
 class profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -12,8 +12,20 @@ class profile(models.Model):
     bio = models.TextField()
     location = models.TextField()
     email = models.EmailField(null=True)
-    profile_image = models.ImageField(upload_to='profile_images', default='user-simple-flat-icon-illustration-vector.jpg')
+    profile_image = models.ImageField(upload_to='profile_images', default='fav.png')
 
     def __str__(self):
         return self.user.username
+
+
+class post(models.Model):
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    user = models.CharField(max_length=100)
+    caption = models.TextField()
+    likes = models.IntegerField(default=0)
+    image = models.ImageField(upload_to='post_images')
+    created_at = models.DateTimeField(default=datetime.now)
+
+    def __str__(self):
+        return self.user
 
