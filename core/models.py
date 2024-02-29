@@ -7,7 +7,7 @@ User = get_user_model()
 
 
 class profile(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     id_user = models.IntegerField()
     bio = models.TextField()
     location = models.TextField()
@@ -29,3 +29,10 @@ class post(models.Model):
     def __str__(self):
         return self.user
 
+
+class like_post(models.Model):
+    post_id = models.CharField(max_length=100)
+    username = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.username
