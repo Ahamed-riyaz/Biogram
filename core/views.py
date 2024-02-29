@@ -2,13 +2,25 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.models import User, auth
-from .models import profile
+from .models import profile, post, like_post
 from django.contrib.auth.decorators import login_required
 
 
 @login_required(login_url='signin')
 def index(request):
-    return render(request, 'index.html')
+    user_profile = profile.objects.get(user=request.user)
+    # get_profile = profile.objects.get(user=user_profile)
+    posts = post.objects.all()
+    # print(posts)
+    profile_image = []
+    for i in posts:
+        user_id = User.objects.get(username=i.user).id
+        profile_user = profile.objects.get(user=user_id).profile_image
+        # print(profile_user.profile_image)
+        profile_image.append(profile_user)
+    # print(posts, profile_image)
+    return render(request, 'index.html',
+                  {'user_profile': user_profile, 'posts': zip(posts, profile_image)})
 
 
 def signup(request):
@@ -58,6 +70,7 @@ def signin(request):
     return render(request, 'signin.html')
 
 
+@login_required(login_url='signin')
 def logout(request):
     auth.logout(request)
     return redirect('signin')
@@ -65,6 +78,7 @@ def logout(request):
 
 @login_required(login_url='signin')
 def settings(request):
+
     user_profile = profile.objects.get(user=request.user)
     if request.method == 'POST':
         bio = request.POST['bio']
@@ -79,4 +93,47 @@ def settings(request):
         user_profile.location = location
         user_profile.save()
 
+    return render(request, 'setting.html', {'user_profile': user_profile})
+
+
+@login_required(login_url='signin')
+def uploads(request):
+    if request.method == 'POST':
+        user = request.user.username
+        caption = request.POST['caption']
+        image = request.FILES.get('post_image')
+
+        new_post = post(user=user, caption=caption, image=image)
+        new_post.save()
+        return redirect('/')
+    else:
+        return redirect('/')
+
+
+@login_required(login_url='signin')
+def likepost(request):
+    if request.user.is_authenticated:
+        username = request.user.username
+        post_id = request.GET.get('post_id')
+
+        Post = post.objects.get(user_id=post_id)
+        like_filter = like_post.objects.filter(post_id=post_id, username=username)
+
+        if not like_filter.exists():
+            new_like = like_post(post_id=post_id, username=username)
+            new_like.save()
+            Post.likes += 1
+            Post.save()
+            return redirect('/')
+        else:
+            like_filter.delete()
+            Post.likes = Post.likes - 1
+            Post.save()
+            return redirect('/')
+
+
+def user_settings(request, username):
+    # print(username)
+    user_profile = profile.objects.get(user__username=username)
+    # print(user_profile)
     return render(request, 'setting.html', {'user_profile': user_profile})
