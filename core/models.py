@@ -17,6 +17,10 @@ class profile(models.Model):
     def __str__(self):
         return self.user.username
 
+    # In the following lines, we customize the display name of models for the Django admin interface.
+    class Meta:
+        verbose_name_plural = "Profile"
+
 
 class post(models.Model):
     user_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
@@ -29,6 +33,9 @@ class post(models.Model):
     def __str__(self):
         return self.user
 
+    class Meta:
+        verbose_name_plural = "post"
+
 
 class like_post(models.Model):
     post_id = models.CharField(max_length=100)
@@ -36,3 +43,17 @@ class like_post(models.Model):
 
     def __str__(self):
         return self.username
+
+    class Meta:
+        verbose_name_plural = "like_post"
+
+
+class follows(models.Model):
+    follower = models.CharField(max_length=100)
+    user = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.follower
+
+    class Meta:
+        verbose_name_plural = "follows"

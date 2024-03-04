@@ -243,7 +243,7 @@
                                      class="bg-gray-200 border border-white rounded-full w-8 h-8">
                             </div>
                         </a>
-                        <span class="block capitalize font-semibold "><a href="{% url 'user_settings' username=post.user %}">@{{post.user}}</a></span>
+                        <span class="block capitalize font-semibold "><a href="{% url 'user_profile' username=post.user %}">@{{post.user}}</a></span>
                     </div>
                     <div>
                         <a href="#"> <i
@@ -388,7 +388,7 @@
                         <!--                    </div>-->
 
                         <p>
-                            <a href="{% url 'user_settings' username=post.user %}"><strong>@{{post.user}}</strong> </a>{{post.caption}}
+                            <a href="#"><strong>@{{post.user}}</strong> </a>{{post.caption}}
                         </p>
                 </div>
 

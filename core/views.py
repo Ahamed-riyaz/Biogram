@@ -1,10 +1,14 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
+from django.urls import reverse
 from django.contrib.auth.models import User, auth
-from .models import profile, post, like_post
+from .models import profile, post, like_post, follows
 from django.contrib.auth.decorators import login_required
 
+
+# The @login_required decorator ensures that only authenticated users can access this view.
+# If the user is not authenticated, they will be redirected to the 'signin' page for login.
 
 @login_required(login_url='signin')
 def index(request):
@@ -78,7 +82,6 @@ def logout(request):
 
 @login_required(login_url='signin')
 def settings(request):
-
     user_profile = profile.objects.get(user=request.user)
     if request.method == 'POST':
         bio = request.POST['bio']
@@ -132,8 +135,49 @@ def likepost(request):
             return redirect('/')
 
 
-def user_settings(request, username):
+@login_required(login_url='signin')
+def profiles(request, username):
     # print(username)
     user_profile = profile.objects.get(user__username=username)
-    # print(user_profile)
-    return render(request, 'setting.html', {'user_profile': user_profile})
+    posts = post.objects.filter(user=username)
+    length_of_posts = len(posts)
+    # print(user_profile.user)
+    # print(user_profile.profile_image)
+    follow_check = follows.objects.filter(follower=request.user.username, user=username).first()
+    user_follower = len(follows.objects.filter(user=request.user.username))
+    user_following = len(follows.objects.filter(follower=request.user.username))
+
+    if follow_check:
+        button = "UnFollow"
+    else:
+        button = "Follow"
+    context = {
+        'user_profile': user_profile,
+        'length_of_posts': length_of_posts,
+        'posts': posts,
+        'button': button,
+        'user_follower': user_follower,
+        'user_following': user_following,
+        'current_user': request.user.username
+    }
+    return render(request, 'profile.html', {'user_profile': context})
+
+
+@login_required(login_url='signin')
+def follow(request):
+    if request.method == 'POST':
+        # current user want to follow that user so current user is a follower
+        follower = request.user.username
+        # print("sdfg", follower)
+        user = request.POST['user_profile']
+        # print(user)
+        is_following = follows.objects.filter(follower=follower, user=user).first()
+        if is_following:
+            is_following.delete()
+            return redirect(reverse('user_profile', args=[user]))
+        else:
+            create_follow = follows(follower=follower, user=user)
+            create_follow.save()
+            # Use reverse to dynamically generate the URL for the user's profile.
+            # this will check the url named user_profile
+            return redirect(reverse('user_profile', args=[user]))

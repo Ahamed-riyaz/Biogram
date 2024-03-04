@@ -9,5 +9,6 @@ urlpatterns = [
     path('settings', views.settings, name="settings"),
     path('upload', views.uploads, name="upload"),
     path('likepost', views.likepost, name="like_post"),
-    path('settings/<username>/', views.user_settings, name='user_settings'),
+    path('profile/<username>/', views.profiles, name="user_profile"),
+    path('follows', views.follow, name="follows")
 ]
